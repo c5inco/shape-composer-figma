@@ -1,11 +1,11 @@
 import { parseSVG } from 'svg-path-parser'
 import { generateShapeClass } from './generators/composeShape'
 
-figma.showUI(__html__, { width: 0, height: 0 })
-
 let selection = figma.currentPage.selection
 
 if (selection.length > 0) {
+    let closePlugin = true
+
     let node = selection[0]
     console.log(node.type)
 
@@ -14,7 +14,10 @@ if (selection.length > 0) {
         if (v.vectorPaths.length === 1) {
             const data = v.vectorPaths[0].data
             const cmds = parseSVG(data)
+            console.log(cmds)
 
+            closePlugin = false
+            figma.showUI(__html__, { width: 0, height: 0 })
             figma.ui.postMessage({
                 copiedText: generateShapeClass(v.name, v.width, v.height, cmds),
             })
@@ -26,15 +29,17 @@ if (selection.length > 0) {
     } else {
         figma.notify('Please select a vector or shape')
     }
-}
 
-// figma.currentPage.selection = nodes;
-// figma.viewport.scrollAndZoomIntoView(nodes);
+    if (closePlugin) figma.closePlugin()
+} else {
+    figma.notify('Please select a vector or shape')
+}
 
 figma.ui.onmessage = message => {
     // Make sure to close the plugin when you're done. Otherwise the plugin will
     // keep running, which shows the cancel button at the bottom of the screen.
-    if (message.type === 'close') {
+    if (message.type === 'shapeGenerated') {
+        figma.notify('Shape generated and copied to clipboard 🎉')
         figma.closePlugin()
     }
 }
