@@ -1,4 +1,5 @@
 const { parseSVG } = require('svg-path-parser')
+import { generateShapeClass } from './generators/composeShape'
 
 let selection = figma.currentPage.selection
 
@@ -11,7 +12,7 @@ if (selection.length > 0) {
         if (v.vectorPaths.length === 1) {
             const data = v.vectorPaths[0].data
             const cmds = parseSVG(data)
-            console.log(cmds)
+            console.log(generateShapeClass(v.width, v.height, cmds))
         } else {
             figma.notify("Please select a single path")
         }
