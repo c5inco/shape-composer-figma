@@ -1,32 +1,36 @@
+interface ShapeResponse {
+  response: string,
+  unsupported: any[]
+}
+
 export function generateShapeClass(
   name: string = 'Custom',
   width: number,
   height: number,
-  pathCommands: any[]
-): String {
+  pathCommands: any[],
+): ShapeResponse {
   let pathCommandsString = ""
+  let unsupported = []
 
   // Append path commands
   for (let i = 0; i < pathCommands.length; i++) {
     const cmd = pathCommands[i]
     if (cmd.command === 'moveto') {
       pathCommandsString += moveToCmd(cmd.x, cmd.y, cmd.relative)
-    }
-    if (cmd.command === 'lineto') {
+    } else if (cmd.command === 'lineto') {
       pathCommandsString += lineToCmd(cmd.x, cmd.y, cmd.relative)
-    }
-    if (cmd.command === 'curveto') {
+    } else if (cmd.command === 'curveto') {
       pathCommandsString += cubicToCmd(cmd.x1, cmd.y1, cmd.x2, cmd.y2, cmd.x, cmd.y, cmd.relative)
-    }
-    if (cmd.command === 'quadratic curveto') {
+    } else if (cmd.command === 'quadratic curveto') {
       pathCommandsString += quadraticBezierToCmd(cmd.x1, cmd.y1, cmd.x2, cmd.y2, cmd.relative)
-    }
-    if (cmd.command === 'closepath') {
+    } else if (cmd.command === 'closepath') {
       pathCommandsString += closeCmd()
+    } else {
+      unsupported.push(cmd)
     }
   }
 
-  return `
+  const response = `
     class ${name}Shape: Shape {
       override fun createOutline(
         size: Size,
@@ -55,6 +59,11 @@ export function generateShapeClass(
         return Outline.Generic(path = aPath.asComposePath())
       }
     }`
+  
+  return {
+    response,
+    unsupported
+  }
 }
 
 function moveToCmd(x, y, relative): string {

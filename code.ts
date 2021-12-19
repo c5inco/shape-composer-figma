@@ -17,11 +17,20 @@ if (selection.length > 0) {
             const cmds = parseSVG(data)
             console.log(cmds)
 
-            closePlugin = false
-            figma.showUI(__html__, { width: 0, height: 0 })
-            figma.ui.postMessage({
-                copiedText: generateShapeClass(removeNonAlphaNumeric(v.name), v.width, v.height, cmds),
-            })
+            const response = generateShapeClass(removeNonAlphaNumeric(v.name), v.width, v.height, cmds)
+
+            if (response.unsupported.length > 0) {
+                const msg = `ERROR | Unsupported cmds found = ${response.unsupported.length}`
+                console.log(msg)
+                console.log(response.unsupported)
+                figma.notify(msg, { error: true })
+            } else {
+                closePlugin = false
+                figma.showUI(__html__, { width: 0, height: 0 })
+                figma.ui.postMessage({
+                    copiedText: generateShapeClass(removeNonAlphaNumeric(v.name), v.width, v.height, cmds),
+                })
+            }
         } else {
             figma.notify('Please select a single path')
         }
