@@ -1,5 +1,5 @@
 interface ShapeResponse {
-  response: string,
+  value: string,
   unsupported: any[]
 }
 
@@ -30,7 +30,7 @@ export function generateShapeClass(
     }
   }
 
-  const response = `
+  const value = `
     class ${name}Shape: Shape {
       override fun createOutline(
         size: Size,
@@ -61,7 +61,7 @@ export function generateShapeClass(
     }`
   
   return {
-    response,
+    value,
     unsupported
   }
 }
