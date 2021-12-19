@@ -1,5 +1,6 @@
 import { parseSVG } from 'svg-path-parser'
 import { generateShapeClass } from './generators/composeShape'
+import { removeNonAlphaNumeric } from './stringUtils'
 
 let selection = figma.currentPage.selection
 
@@ -19,7 +20,7 @@ if (selection.length > 0) {
             closePlugin = false
             figma.showUI(__html__, { width: 0, height: 0 })
             figma.ui.postMessage({
-                copiedText: generateShapeClass(v.name, v.width, v.height, cmds),
+                copiedText: generateShapeClass(removeNonAlphaNumeric(v.name), v.width, v.height, cmds),
             })
         } else {
             figma.notify('Please select a single path')
