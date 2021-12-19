@@ -40,25 +40,21 @@ export function generateShapeClass(
         path.fillType = PathFillType.EvenOdd
         
         ${pathCommandsString}
-
         val bounds = RectF()
         val aPath = path.asAndroidPath()
         aPath.computeBounds(bounds, true)
         val scaleMatrix = Matrix()
         scaleMatrix.setScale(
-            size.width / baseWidth,
-            size.height / baseHeight,
-            0f,
-            0f
+          size.width / baseWidth,
+          size.height / baseHeight,
+          0f,
+          0f
         )
         aPath.transform(scaleMatrix)
 
-        return Outline.Generic(
-          path = aPath.asComposePath()
-        )
+        return Outline.Generic(path = aPath.asComposePath())
       }
-    }
-  `
+    }`
 }
 
 function moveToCmd(x, y, relative): string {
