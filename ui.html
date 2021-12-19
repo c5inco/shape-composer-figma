@@ -1,0 +1,23 @@
+<div id="loading">
+  <textarea></textarea>
+</div>
+<script>
+  onmessage = event => {
+    if (event.data.pluginMessage.copiedText) {
+      const data = event.data.pluginMessage.copiedText
+      let textarea = document.getElementsByTagName("textarea")[0]
+      let copiedText = event.data.pluginMessage.copiedText
+      textarea.value = copiedText
+      textarea.select()
+      document.execCommand("copy")
+      parent.postMessage(
+        {
+          pluginMessage: {
+            type: "close"
+          }
+        },
+        "*"
+      )
+    }
+  }
+</script>

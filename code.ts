@@ -1,5 +1,7 @@
-const { parseSVG } = require('svg-path-parser')
+import { parseSVG } from 'svg-path-parser'
 import { generateShapeClass } from './generators/composeShape'
+
+figma.showUI(__html__, { width: 0, height: 0 })
 
 let selection = figma.currentPage.selection
 
@@ -12,20 +14,27 @@ if (selection.length > 0) {
         if (v.vectorPaths.length === 1) {
             const data = v.vectorPaths[0].data
             const cmds = parseSVG(data)
-            console.log(generateShapeClass(v.width, v.height, cmds))
+            
+            figma.ui.postMessage({
+                copiedText: generateShapeClass(v.width, v.height, cmds),
+            })
         } else {
-            figma.notify("Please select a single path")
+            figma.notify('Please select a single path')
         }
-    } else if (node.type === "BOOLEAN_OPERATION") {
-        figma.notify("Please flatten to single path")
+    } else if (node.type === 'BOOLEAN_OPERATION') {
+        figma.notify('Please flatten to single path')
     } else {
-        figma.notify("Please select a vector or shape")
+        figma.notify('Please select a vector or shape')
     }
 }
 
 // figma.currentPage.selection = nodes;
 // figma.viewport.scrollAndZoomIntoView(nodes);
 
-// Make sure to close the plugin when you're done. Otherwise the plugin will
-// keep running, which shows the cancel button at the bottom of the screen.
-figma.closePlugin();
+figma.ui.onmessage = message => {
+    // Make sure to close the plugin when you're done. Otherwise the plugin will
+    // keep running, which shows the cancel button at the bottom of the screen.
+    if (message.type === 'close') {
+        figma.closePlugin()
+    }
+}

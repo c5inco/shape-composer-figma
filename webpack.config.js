@@ -1,3 +1,4 @@
+const HtmlWebpackPlugin = require('html-webpack-plugin')
 const path = require('path')
 
 module.exports = (env, argv) => ({
@@ -24,4 +25,12 @@ module.exports = (env, argv) => ({
     filename: '[name].js',
     path: path.resolve(__dirname, 'dist'), // Compile into a folder called "dist"
   },
+
+  // Tells Webpack to generate "ui.html" and to inline "ui.ts" into it
+  plugins: [
+    new HtmlWebpackPlugin({
+      template: './ui.html',
+      filename: 'ui.html',
+    }),
+  ],
 })

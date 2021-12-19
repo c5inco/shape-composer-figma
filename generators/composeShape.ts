@@ -35,8 +35,7 @@ export function generateShapeClass(
   classString += generateTransformCode()
 
   // Add last brackets
-  classString += '}'
-  classString += '}'
+  classString += '}\n}'
 
   return classString
 }
