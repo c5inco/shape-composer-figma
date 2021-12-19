@@ -1,4 +1,4 @@
-const parseSvg = require('svg-path-parser')
+const { parseSVG } = require('svg-path-parser')
 
 let selection = figma.currentPage.selection
 
@@ -6,19 +6,20 @@ if (selection.length > 0) {
     let node = selection[0]
     console.log(node.type)
 
-    let data = ""
     if (node.type === 'VECTOR') {
         let v = node as VectorNode
         if (v.vectorPaths.length === 1) {
-            data = v.vectorPaths[0].data
-            console.log(parseSvg(data))
+            const data = v.vectorPaths[0].data
+            const cmds = parseSVG(data)
+            console.log(cmds)
         } else {
             figma.notify("Please select a single path")
         }
+    } else if (node.type === "BOOLEAN_OPERATION") {
+        figma.notify("Please flatten to single path")
+    } else {
+        figma.notify("Please select a vector or shape")
     }
-
-    // console.log(data)
-    // figma.notify(data)
 }
 
 // figma.currentPage.selection = nodes;
