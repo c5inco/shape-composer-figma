@@ -14,9 +14,9 @@ if (selection.length > 0) {
         if (v.vectorPaths.length === 1) {
             const data = v.vectorPaths[0].data
             const cmds = parseSVG(data)
-            
+
             figma.ui.postMessage({
-                copiedText: generateShapeClass(v.width, v.height, cmds),
+                copiedText: generateShapeClass(v.name, v.width, v.height, cmds),
             })
         } else {
             figma.notify('Please select a single path')

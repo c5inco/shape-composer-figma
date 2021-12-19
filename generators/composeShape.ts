@@ -1,43 +1,59 @@
-import { shapeTemplate } from '../template'
-
 export function generateShapeClass(
+  name: string = 'Custom',
   width: number,
   height: number,
   pathCommands: any[]
 ): String {
-  // Setup template
-  let classString = shapeTemplate
-
-  classString += `
-  val baseWidth = ${width}f
-  val baseHeight = ${height}f
-
-  `
+  let pathCommandsString = ""
 
   // Append path commands
   for (let i = 0; i < pathCommands.length; i++) {
     const cmd = pathCommands[i]
     if (cmd.command === 'moveto') {
-      classString += moveToCmd(cmd.x, cmd.y)
+      pathCommandsString += moveToCmd(cmd.x, cmd.y)
     }
     if (cmd.command === 'lineto') {
-      classString += lineToCmd(cmd.x, cmd.y)
+      pathCommandsString += lineToCmd(cmd.x, cmd.y)
     }
     if (cmd.command === 'curveto') {
-      classString += cubicToCmd(cmd.x1, cmd.y1, cmd.x2, cmd.y2, cmd.x, cmd.y)
+      pathCommandsString += cubicToCmd(cmd.x1, cmd.y1, cmd.x2, cmd.y2, cmd.x, cmd.y)
     }
     if (cmd.command === 'closepath') {
-      classString += closeCmd()
+      pathCommandsString += closeCmd()
     }
   }
 
-  // Add transform code
-  classString += generateTransformCode()
+  return `
+    class ${name}Shape: Shape {
+      override fun createOutline(
+        size: Size,
+        layoutDirection: LayoutDirection,
+        density: Density
+      ): Outline {
+        val path = Path()
+        val baseWidth = ${width}f
+        val baseHeight = ${height}f
 
-  // Add last brackets
-  classString += '}\n}'
+        ${pathCommandsString}
 
-  return classString
+        val bounds = RectF()
+        val aPath = path.asAndroidPath()
+        aPath.computeBounds(bounds, true)
+        val scaleMatrix = Matrix()
+        scaleMatrix.setScale(
+            size.width / baseWidth,
+            size.height / baseHeight,
+            0f,
+            0f
+        )
+        aPath.transform(scaleMatrix)
+
+        return Outline.Generic(
+          path = aPath.asComposePath()
+        )
+      }
+    }
+  `
 }
 
 function moveToCmd(x, y): string {
@@ -53,25 +69,5 @@ function cubicToCmd(x1, y1, x2, y2, x3, y3): string {
 }
 
 function closeCmd(): string {
-  return `path.close()\n`
-}
-
-function generateTransformCode(): string {
-  return `
-  val bounds = RectF()
-  val aPath = path.asAndroidPath()
-  aPath.computeBounds(bounds, true)
-  val scaleMatrix = Matrix()
-  scaleMatrix.setScale(
-      size.width / baseWidth,
-      size.height / baseHeight,
-      0f,
-      0f
-  )
-  aPath.transform(scaleMatrix)
-
-  return Outline.Generic(
-    path = aPath.asComposePath()
-  )
-  `
+  return `path.close()`
 }
