@@ -10,13 +10,16 @@ export function generateShapeClass(
   for (let i = 0; i < pathCommands.length; i++) {
     const cmd = pathCommands[i]
     if (cmd.command === 'moveto') {
-      pathCommandsString += moveToCmd(cmd.x, cmd.y)
+      pathCommandsString += moveToCmd(cmd.x, cmd.y, cmd.relative)
     }
     if (cmd.command === 'lineto') {
-      pathCommandsString += lineToCmd(cmd.x, cmd.y)
+      pathCommandsString += lineToCmd(cmd.x, cmd.y, cmd.relative)
     }
     if (cmd.command === 'curveto') {
-      pathCommandsString += cubicToCmd(cmd.x1, cmd.y1, cmd.x2, cmd.y2, cmd.x, cmd.y)
+      pathCommandsString += cubicToCmd(cmd.x1, cmd.y1, cmd.x2, cmd.y2, cmd.x, cmd.y, cmd.relative)
+    }
+    if (cmd.command === 'quadratic curveto') {
+      pathCommandsString += quadraticBezierToCmd(cmd.x1, cmd.y1, cmd.x2, cmd.y2, cmd.relative)
     }
     if (cmd.command === 'closepath') {
       pathCommandsString += closeCmd()
@@ -30,10 +33,12 @@ export function generateShapeClass(
         layoutDirection: LayoutDirection,
         density: Density
       ): Outline {
-        val path = Path()
         val baseWidth = ${width}f
         val baseHeight = ${height}f
 
+        val path = Path()
+        path.fillType = PathFillType.EvenOdd
+        
         ${pathCommandsString}
 
         val bounds = RectF()
@@ -56,18 +61,22 @@ export function generateShapeClass(
   `
 }
 
-function moveToCmd(x, y): string {
-  return `path.moveTo(${x}f, ${y}f)\n`
+function moveToCmd(x, y, relative): string {
+  return `${relative ? 'path.relativeMoveTo' : 'path.moveTo'}(${x}f, ${y}f)\n`
 }
 
-function lineToCmd(x, y): string {
-  return `path.lineTo(${x}f, ${y}f)\n`
+function lineToCmd(x, y, relative): string {
+  return `${relative ? 'path.relativeLineTo' : 'path.lineTo'}(${x}f, ${y}f)\n`
 }
 
-function cubicToCmd(x1, y1, x2, y2, x3, y3): string {
-  return `path.cubicTo(${x1}f, ${y1}f, ${x2}f, ${y2}f, ${x3}f, ${y3}f)\n`
+function cubicToCmd(x1, y1, x2, y2, x3, y3, relative): string {
+  return `${relative ? 'path.relativeCubicTo' : 'path.cubicTo'}(${x1}f, ${y1}f, ${x2}f, ${y2}f, ${x3}f, ${y3}f)\n`
+}
+
+function quadraticBezierToCmd(x1, y1, x2, y2, relative): string {
+  return `${relative ? 'path.relativeQuadraticBezierTo' : 'path.quadraticBezierTo'}(${x1}f, ${y1}f, ${x2}f, ${y2}f)\n`
 }
 
 function closeCmd(): string {
-  return `path.close()`
+  return `path.close()\n`
 }
