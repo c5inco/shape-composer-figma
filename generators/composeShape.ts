@@ -3,6 +3,16 @@ interface ShapeResponse {
   unsupported: any[]
 }
 
+declare global {
+  interface Number {
+    round: (places: number) => string;
+  }
+}
+
+Number.prototype.round = function (places: number = 4): string {
+  return Number.parseFloat(this.toFixed(places)).toPrecision()
+}
+
 export function generateShapeClass(
   name: string = 'Custom',
   width: number,
@@ -17,13 +27,13 @@ export function generateShapeClass(
   for (let i = 0; i < pathCommands.length; i++) {
     const cmd = pathCommands[i]
     if (cmd.command === 'moveto') {
-      pathCommandsString += moveToCmd(cmd.x, cmd.y, cmd.relative)
+      pathCommandsString += moveToCmd(cmd.x.round(), cmd.y.round(), cmd.relative)
     } else if (cmd.command === 'lineto') {
-      pathCommandsString += lineToCmd(cmd.x, cmd.y, cmd.relative)
+      pathCommandsString += lineToCmd(cmd.x.round(), cmd.y.round(), cmd.relative)
     } else if (cmd.command === 'curveto') {
-      pathCommandsString += cubicToCmd(cmd.x1, cmd.y1, cmd.x2, cmd.y2, cmd.x, cmd.y, cmd.relative)
+      pathCommandsString += cubicToCmd(cmd.x1.round(), cmd.y1.round(), cmd.x2.round(), cmd.y2.round(), cmd.x.round(), cmd.y.round(), cmd.relative)
     } else if (cmd.command === 'quadratic curveto') {
-      pathCommandsString += quadraticBezierToCmd(cmd.x1, cmd.y1, cmd.x2, cmd.y2, cmd.relative)
+      pathCommandsString += quadraticBezierToCmd(cmd.x1.round(), cmd.y1.round(), cmd.x2.round(), cmd.y2.round(), cmd.relative)
     } else if (cmd.command === 'closepath') {
       pathCommandsString += closeCmd()
     } else {
