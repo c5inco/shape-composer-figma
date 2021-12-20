@@ -44,7 +44,7 @@ export function generateShapeClass(
   const fillType = windingRule === 'EVENODD' ? 'path.fillType = PathFillType.EvenOdd\n' : ''
 
   const value = `
-    class ${name}Shape: Shape {
+    val ${name}Shape: Shape = object: Shape {
       override fun createOutline(
         size: Size,
         layoutDirection: LayoutDirection,
