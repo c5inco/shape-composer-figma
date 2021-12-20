@@ -7,6 +7,7 @@ export function generateShapeClass(
   name: string = 'Custom',
   width: number,
   height: number,
+  windingRule: string,
   pathCommands: any[],
 ): ShapeResponse {
   let pathCommandsString = ""
@@ -30,6 +31,8 @@ export function generateShapeClass(
     }
   }
 
+  const fillType = windingRule === 'EVENODD' ? 'path.fillType = PathFillType.EvenOdd\n' : ''
+
   const value = `
     class ${name}Shape: Shape {
       override fun createOutline(
@@ -41,8 +44,7 @@ export function generateShapeClass(
         val baseHeight = ${height}f
 
         val path = Path()
-        path.fillType = PathFillType.EvenOdd
-        
+        ${fillType}
         ${pathCommandsString}
         val bounds = RectF()
         val aPath = path.asAndroidPath()

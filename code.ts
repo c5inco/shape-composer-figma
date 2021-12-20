@@ -3,21 +3,21 @@ import { generateShapeClass } from './generators/composeShape'
 import { removeNonAlphaNumeric } from './stringUtils'
 
 let selection = figma.currentPage.selection
+let closePlugin = true
 
 if (selection.length > 0) {
-    let closePlugin = true
-
     let node = selection[0]
     console.log(node.type)
 
     if (node.type === 'VECTOR') {
         let v = node as VectorNode
         if (v.vectorPaths.length === 1) {
-            const data = v.vectorPaths[0].data
+            const vPath = v.vectorPaths[0]
+            const data = vPath.data
             const cmds = parseSVG(data)
             console.log(cmds)
 
-            const response = generateShapeClass(removeNonAlphaNumeric(v.name), v.width, v.height, cmds)
+            const response = generateShapeClass(removeNonAlphaNumeric(v.name), v.width, v.height, vPath.windingRule, cmds)
 
             if (response.unsupported.length > 0) {
                 const msg = `ERROR | Unsupported cmds found = ${response.unsupported.length}`
@@ -32,18 +32,18 @@ if (selection.length > 0) {
                 })
             }
         } else {
-            figma.notify('Please select a single path')
+            figma.notify('Shape can only be exported as a single path 🙈')
         }
     } else if (node.type === 'BOOLEAN_OPERATION') {
-        figma.notify('Please flatten to single path')
+        figma.notify('Please flatten to single path 🙈')
     } else {
-        figma.notify('Please select a vector or shape')
+        figma.notify('Please select a vector 🙈')
     }
-
-    if (closePlugin) figma.closePlugin()
 } else {
-    figma.notify('Please select a vector or shape')
+    figma.notify('Please make a selection 🤠')
 }
+
+if (closePlugin) figma.closePlugin()
 
 figma.ui.onmessage = message => {
     // Make sure to close the plugin when you're done. Otherwise the plugin will
