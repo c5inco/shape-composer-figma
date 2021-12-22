@@ -1,40 +1,77 @@
-Below are the steps to get your plugin running. You can also find instructions at:
+![Cover art](./assets/community/coverArt.png)
 
-  https://www.figma.com/plugin-docs/setup/
+# Shape Composer Figma plugin
 
-This plugin template uses Typescript and NPM, two standard tools in creating JavaScript applications.
+Small plugin that exports custom shapes for use in a [Jetpack Compose](https://developer.android.com/jetpack/compose) app.
 
-First, download Node.js which comes with NPM. This will allow you to install TypeScript and other
-libraries. You can find the download link here:
+Essentially, the path data from a Figma [VectorNode](https://www.figma.com/plugin-docs/api/VectorNode/) is translated into [Path commands](https://developer.android.com/reference/kotlin/androidx/compose/ui/graphics/Path) to be recreated in Android, with some extra wrapping around a [Shape class](https://developer.android.com/reference/kotlin/androidx/compose/ui/graphics/Shape) to easily copy-paste into the project.
 
-  https://nodejs.org/en/download/
+Clover shape example:
 
-Next, install TypeScript using the command:
+![Clover shape](./assets/community/clover.png)
 
-  npm install -g typescript
+```kotlin
+val CloverShape: Shape = object: Shape {
+    override fun createOutline(
+        size: Size,
+        layoutDirection: LayoutDirection,
+        density: Density
+    ): Outline {
+        val baseWidth = 200f
+        val baseHeight = 200f
 
-Finally, in the directory of your plugin, get the latest type definitions for the plugin API by running:
+        val path = Path()
 
-  npm install --save-dev @figma/plugin-typings
+        path.moveTo(12f, 100f)
+        path.cubicTo(12f, 76f, 0f, 77.6142f, 0f, 50f)
+        path.cubicTo(0f, 22.3858f, 22.3858f, 0f, 50f, 0f)
+        path.cubicTo(77.6142f, 0f, 76f, 12f, 100f, 12f)
+        path.cubicTo(124f, 12f, 122.3858f, 0f, 150f, 0f)
+        path.cubicTo(177.6142f, 0f, 200f, 22.3858f, 200f, 50f)
+        path.cubicTo(200f, 77.6142f, 188f, 76f, 188f, 100f)
+        path.cubicTo(188f, 124f, 200f, 122.3858f, 200f, 150f)
+        path.cubicTo(200f, 177.6142f, 177.6142f, 200f, 150f, 200f)
+        path.cubicTo(122.3858f, 200f, 124f, 188f, 100f, 188f)
+        path.cubicTo(76f, 188f, 77.6142f, 200f, 50f, 200f)
+        path.cubicTo(22.3858f, 200f, 0f, 177.6142f, 0f, 150f)
+        path.cubicTo(0f, 122.3858f, 12f, 124f, 12f, 100f)
+        path.close()
 
-If you are familiar with JavaScript, TypeScript will look very familiar. In fact, valid JavaScript code
-is already valid Typescript code.
+        val bounds = RectF()
+        val aPath = path.asAndroidPath()
+        aPath.computeBounds(bounds, true)
+        val scaleMatrix = Matrix()
+        scaleMatrix.setScale(
+            size.width / baseWidth,
+            size.height / baseHeight,
+            0f,
+            0f
+        )
+        aPath.transform(scaleMatrix)
 
-TypeScript adds type annotations to variables. This allows code editors such as Visual Studio Code
-to provide information about the Figma API while you are writing code, as well as help catch bugs
-you previously didn't notice.
+        return Outline.Generic(path = aPath.asComposePath())
+    }
+}
+```
 
-For more information, visit https://www.typescriptlang.org/
+Unsupported path commands:
 
-Using TypeScript requires a compiler to convert TypeScript (code.ts) into JavaScript (code.js)
-for the browser to run.
+- Vertical line to (V, v)
+- Horizontal line to (H, h)
+- Smooth curve to (S, s)
+- Smooth quadratic curve to (T, t)
+- Elliptical Arc (A, a)
 
-We recommend writing TypeScript code using Visual Studio code:
+## Setup
 
-1. Download Visual Studio Code if you haven't already: https://code.visualstudio.com/.
-2. Open this directory in Visual Studio Code.
-3. Compile TypeScript to JavaScript: Run the "Terminal > Run Build Task..." menu item,
-    then select "tsc: watch - tsconfig.json". You will have to do this again every time
-    you reopen Visual Studio Code.
+1. Clone this repo
+2. `npm install` in cloned directory to install dependencies
+3. Import plugin for local development in Figma desktop app, using `manifest.json`
+4. Run `npm start` to start development server and Typescript watcher
+5. Use plugin in Figma!
 
-That's it! Visual Studio Code will regenerate the JavaScript file every time you save.
+## Current designed workflow
+
+1. Select Vector layer in Figma (flatten if necessary)
+2. Execute plugin action
+3. Paste copied class from clipboard into Compose project
