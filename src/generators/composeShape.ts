@@ -56,19 +56,16 @@ export function generateShapeClass(
         val path = Path()
         ${fillType}
         ${pathCommandsString}
-        val bounds = RectF()
-        val aPath = path.asAndroidPath()
-        aPath.computeBounds(bounds, true)
-        val scaleMatrix = Matrix()
-        scaleMatrix.setScale(
-          size.width / baseWidth,
-          size.height / baseHeight,
-          0f,
-          0f
+        return Outline.Generic(
+          path
+            .asAndroidPath()
+            .apply {
+              transform(Matrix().apply {
+                setScale(size.width / baseWidth, size.height / baseHeight)
+              })
+            }
+            .asComposePath()
         )
-        aPath.transform(scaleMatrix)
-
-        return Outline.Generic(path = aPath.asComposePath())
       }
     }`
   
