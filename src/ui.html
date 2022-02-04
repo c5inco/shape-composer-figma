@@ -1,23 +1,36 @@
-<div id="loading">
-  <textarea></textarea>
-</div>
 <script>
   onmessage = event => {
     if (event.data.pluginMessage.copiedText) {
       const data = event.data.pluginMessage.copiedText
-      let textarea = document.getElementsByTagName("textarea")[0]
-      let copiedText = event.data.pluginMessage.copiedText
-      textarea.value = copiedText
-      textarea.select()
-      document.execCommand("copy")
-      parent.postMessage(
-        {
-          pluginMessage: {
-            type: "shapeGenerated"
+      let copied = true
+
+      try {
+        if (window.copy) {
+          window.copy(data)
+        } else {
+          const area = document.createElement('textarea')
+          document.body.appendChild(area)
+          area.value = data
+          area.focus()
+          area.select()
+          const result = document.execCommand('copy')
+          document.body.removeChild(area)
+          if (!result) {
+            throw new Error()
           }
-        },
-        "*"
-      )
+        }
+      } catch (e) {
+        console.error(`Unable to copy the value: ${data}`)
+        copied = false
+      }
+
+      if (copied) {
+        // console.log(`Copied the value: ${data}`)
+        parent.postMessage(
+          { pluginMessage: { type: "shapeGenerated" } },
+          "*"
+        )
+      }
     }
   }
 </script>
