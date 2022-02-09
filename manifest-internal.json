@@ -4,6 +4,9 @@
   "api": "1.0.0",
   "main": "dist/code.js",
   "ui": "dist/ui.html",
+  "menu": [
+    {"name": "Export to Shape class", "command": "string"}
+  ],
   "editorType": [
     "figma"
   ]
