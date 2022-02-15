@@ -1,5 +1,5 @@
 import { parseSVG } from 'svg-path-parser'
-import { generateShapeClass } from './generators/composeShape'
+import { generateComposePath, generateShapeClass } from './generators/composeShape'
 import { removeNonAlphaNumeric } from './stringUtils'
 
 let selection = figma.currentPage.selection
@@ -16,7 +16,13 @@ if (selection.length > 0) {
             const cmds = parseSVG(data)
             console.log(cmds)
 
-            const response = generateShapeClass(removeNonAlphaNumeric(v.name), v.width, v.height, vPath.windingRule, cmds)
+            let response
+            if (figma.command === 'shape') {
+                response = generateShapeClass(removeNonAlphaNumeric(v.name), v.width, v.height, vPath.windingRule, cmds)
+            }
+            if (figma.command === 'path') {
+                response = generateComposePath(vPath.windingRule, cmds)
+            }
 
             if (response.unsupported.length > 0) {
                 const msg = `ERROR | Unsupported cmds found = ${response.unsupported.length}`
@@ -28,10 +34,11 @@ if (selection.length > 0) {
                 figma.showUI(__html__, { width: 0, height: 0 })
                 figma.ui.postMessage({
                     copiedText: response.value,
+                    command: figma.command
                 })
             }
         } else {
-            figma.closePlugin('Shape can only be exported as a single path 🙈')
+            figma.closePlugin('Only single path export is supported at this time 🙈')
         }
     } else if (node.type === 'BOOLEAN_OPERATION') {
         figma.closePlugin('Please flatten to single path 🙈')
@@ -45,7 +52,9 @@ if (selection.length > 0) {
 figma.ui.onmessage = message => {
     // Make sure to close the plugin when you're done. Otherwise the plugin will
     // keep running, which shows the cancel button at the bottom of the screen.
-    if (message.type === 'shapeGenerated') {
+    if (message.command === 'shape') {
         figma.closePlugin('Shape generated and copied to clipboard 🎉')
+    } else {
+        figma.closePlugin('Path generated and copied to clipboard 🎉')
     }
 }

@@ -1,3 +1,11 @@
+import { BaseCommand } from 'svg-path-parser'
+import * as PathUtils from '../pathUtils'
+
+interface PathResponse {
+  value: string,
+  unsupported: any[]
+}
+
 interface ShapeResponse {
   value: string,
   unsupported: any[]
@@ -5,12 +13,43 @@ interface ShapeResponse {
 
 declare global {
   interface Number {
-    round: (places: number) => string;
+    round: () => string;
   }
 }
 
-Number.prototype.round = function (places: number = 4): string {
-  return Number.parseFloat(this.toFixed(places)).toPrecision()
+Number.prototype.round = function (): string {
+  return Number.parseFloat(this.toFixed(4)).toPrecision()
+}
+
+function transformPathCommands(
+  cmds: BaseCommand[]
+): PathResponse {
+  let value = ""
+  let unsupported = []
+
+  // Collect path commands
+  for (let i = 0; i < cmds.length; i++) {
+    const cmd = cmds[i]
+
+    if (PathUtils.isMoveTo(cmd)) {
+      value += moveToCmd(cmd.x.round(), cmd.y.round(), cmd.relative)
+    } else if (PathUtils.isLineTo(cmd)) {
+      value += lineToCmd(cmd.x.round(), cmd.y.round(), cmd.relative)
+    } else if (PathUtils.isCurveTo(cmd)) {
+      value += cubicToCmd(cmd.x1.round(), cmd.y1.round(), cmd.x2.round(), cmd.y2.round(), cmd.x.round(), cmd.y.round(), cmd.relative)
+    } else if (PathUtils.isQuadCurveTo(cmd)) {
+      value += quadraticBezierToCmd(cmd.x1.round(), cmd.y1.round(), cmd.x.round(), cmd.y.round(), cmd.relative)
+    } else if (cmd.command === 'closepath') {
+      value += closeCmd()
+    } else {
+      unsupported.push(cmd)
+    }
+  }
+
+  return {
+    value,
+    unsupported
+  }
 }
 
 export function generateShapeClass(
@@ -18,30 +57,9 @@ export function generateShapeClass(
   width: number,
   height: number,
   windingRule: string,
-  pathCommands: any[],
+  pathCommands: BaseCommand[],
 ): ShapeResponse {
-  let pathCommandsString = ""
-  let unsupported = []
-
-  // Append path commands
-  for (let i = 0; i < pathCommands.length; i++) {
-    const cmd = pathCommands[i]
-    if (cmd.command === 'moveto') {
-      pathCommandsString += moveToCmd(cmd.x.round(), cmd.y.round(), cmd.relative)
-    } else if (cmd.command === 'lineto') {
-      pathCommandsString += lineToCmd(cmd.x.round(), cmd.y.round(), cmd.relative)
-    } else if (cmd.command === 'curveto') {
-      pathCommandsString += cubicToCmd(cmd.x1.round(), cmd.y1.round(), cmd.x2.round(), cmd.y2.round(), cmd.x.round(), cmd.y.round(), cmd.relative)
-    } else if (cmd.command === 'quadratic curveto') {
-      pathCommandsString += quadraticBezierToCmd(cmd.x1.round(), cmd.y1.round(), cmd.x2.round(), cmd.y2.round(), cmd.relative)
-    } else if (cmd.command === 'closepath') {
-      pathCommandsString += closeCmd()
-    } else {
-      unsupported.push(cmd)
-    }
-  }
-
-  const fillType = windingRule === 'EVENODD' ? 'path.fillType = PathFillType.EvenOdd\n' : ''
+  const pathResponse = generateComposePath(windingRule, pathCommands) 
 
   const value = `
     val ${name}Shape: Shape = object: Shape {
@@ -50,12 +68,10 @@ export function generateShapeClass(
         layoutDirection: LayoutDirection,
         density: Density
       ): Outline {
-        val baseWidth = ${width}f
-        val baseHeight = ${height}f
+        val baseWidth = ${width.round()}f
+        val baseHeight = ${height.round()}f
 
-        val path = Path()
-        ${fillType}
-        ${pathCommandsString}
+        ${pathResponse.value}
         return Outline.Generic(
           path
             .asAndroidPath()
@@ -71,7 +87,27 @@ export function generateShapeClass(
   
   return {
     value,
-    unsupported
+    unsupported: pathResponse.unsupported
+  }
+}
+
+export function generateComposePath(
+  windingRule: string,
+  pathCommands: BaseCommand[],
+): PathResponse {
+  const pathResponse = transformPathCommands(pathCommands) 
+  const fillType = windingRule === 'EVENODD' ? 'path.fillType = PathFillType.EvenOdd\n' : ''
+
+  const value = `
+        val path = Path()
+        ${fillType}
+        ${pathResponse.value}
+      }
+    }`
+  
+  return {
+    value,
+    unsupported: pathResponse.unsupported
   }
 }
 
