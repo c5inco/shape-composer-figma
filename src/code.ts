@@ -3,7 +3,6 @@ import { generateShapeClass } from './generators/composeShape'
 import { removeNonAlphaNumeric } from './stringUtils'
 
 let selection = figma.currentPage.selection
-let closePlugin = true
 
 if (selection.length > 0) {
     let node = selection[0]
@@ -24,32 +23,29 @@ if (selection.length > 0) {
                 console.log(msg)
                 console.log(response.unsupported)
                 figma.notify(msg, { error: true })
+                figma.closePlugin()
             } else {
-                closePlugin = false
                 figma.showUI(__html__, { width: 0, height: 0 })
                 figma.ui.postMessage({
                     copiedText: response.value,
                 })
             }
         } else {
-            figma.notify('Shape can only be exported as a single path 🙈')
+            figma.closePlugin('Shape can only be exported as a single path 🙈')
         }
     } else if (node.type === 'BOOLEAN_OPERATION') {
-        figma.notify('Please flatten to single path 🙈')
+        figma.closePlugin('Please flatten to single path 🙈')
     } else {
-        figma.notify('Please select a vector 🙈')
+        figma.closePlugin('Please select a vector 🙈')
     }
 } else {
-    figma.notify('Please make a selection 🤠')
+    figma.closePlugin('Please make a selection 🤠')
 }
-
-if (closePlugin) figma.closePlugin()
 
 figma.ui.onmessage = message => {
     // Make sure to close the plugin when you're done. Otherwise the plugin will
     // keep running, which shows the cancel button at the bottom of the screen.
     if (message.type === 'shapeGenerated') {
-        figma.notify('Shape generated and copied to clipboard 🎉')
-        figma.closePlugin()
+        figma.closePlugin('Shape generated and copied to clipboard 🎉')
     }
 }
