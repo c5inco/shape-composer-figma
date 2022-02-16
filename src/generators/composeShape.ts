@@ -61,8 +61,8 @@ export function generateShapeClass(
 ): ShapeResponse {
   const pathResponse = generateComposePath(windingRule, pathCommands) 
 
-  const value = `
-    val ${name}Shape: Shape = object: Shape {
+  const value =
+    `val ${name}Shape: Shape = object: Shape {
       override fun createOutline(
         size: Size,
         layoutDirection: LayoutDirection,
@@ -98,12 +98,7 @@ export function generateComposePath(
   const pathResponse = transformPathCommands(pathCommands) 
   const fillType = windingRule === 'EVENODD' ? 'path.fillType = PathFillType.EvenOdd\n' : ''
 
-  const value = `
-        val path = Path()
-        ${fillType}
-        ${pathResponse.value}
-      }
-    }`
+  const value = `val path = Path()\n${fillType}\n${pathResponse.value}`
   
   return {
     value,
