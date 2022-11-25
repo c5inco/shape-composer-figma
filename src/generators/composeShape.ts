@@ -96,9 +96,9 @@ export function generateComposePath(
   pathCommands: BaseCommand[],
 ): PathResponse {
   const pathResponse = transformPathCommands(pathCommands) 
-  const fillType = windingRule === 'EVENODD' ? 'path.fillType = PathFillType.EvenOdd\n' : ''
+  const fillType = windingRule === 'EVENODD' ? 'fillType = PathFillType.EvenOdd\n' : ''
 
-  const value = `val path = Path()\n${fillType}\n${pathResponse.value}`
+  const value = `val path = Path().apply {\n${fillType}${pathResponse.value}}`
   
   return {
     value,
@@ -107,21 +107,21 @@ export function generateComposePath(
 }
 
 function moveToCmd(x, y, relative): string {
-  return `${relative ? 'path.relativeMoveTo' : 'path.moveTo'}(${x}f, ${y}f)\n`
+  return `${relative ? 'relativeMoveTo' : 'moveTo'}(${x}f, ${y}f)\n`
 }
 
 function lineToCmd(x, y, relative): string {
-  return `${relative ? 'path.relativeLineTo' : 'path.lineTo'}(${x}f, ${y}f)\n`
+  return `${relative ? 'relativeLineTo' : 'lineTo'}(${x}f, ${y}f)\n`
 }
 
 function cubicToCmd(x1, y1, x2, y2, x3, y3, relative): string {
-  return `${relative ? 'path.relativeCubicTo' : 'path.cubicTo'}(${x1}f, ${y1}f, ${x2}f, ${y2}f, ${x3}f, ${y3}f)\n`
+  return `${relative ? 'relativeCubicTo' : 'cubicTo'}(${x1}f, ${y1}f, ${x2}f, ${y2}f, ${x3}f, ${y3}f)\n`
 }
 
 function quadraticBezierToCmd(x1, y1, x2, y2, relative): string {
-  return `${relative ? 'path.relativeQuadraticBezierTo' : 'path.quadraticBezierTo'}(${x1}f, ${y1}f, ${x2}f, ${y2}f)\n`
+  return `${relative ? 'relativeQuadraticBezierTo' : 'quadraticBezierTo'}(${x1}f, ${y1}f, ${x2}f, ${y2}f)\n`
 }
 
 function closeCmd(): string {
-  return `path.close()\n`
+  return `close()\n`
 }
