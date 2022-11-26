@@ -1,11 +1,12 @@
 {
   "name": "Shape Composer",
   "id": "1055221016198833990",
-  "api": "1.0.0",
+  "api": "1.0.1",
   "main": "dist/code.js",
   "ui": "dist/ui.html",
   "menu": [
-    {"name": "Export to Shape class", "command": "string"}
+    {"name": "Export as Shape class", "command": "shape"},
+    {"name": "Export as Compose Path", "command": "path"}
   ],
   "editorType": [
     "figma"
