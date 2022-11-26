@@ -20,36 +20,33 @@ val CloverShape: Shape = object: Shape {
         val baseWidth = 200f
         val baseHeight = 200f
 
-        val path = Path()
-
-        path.moveTo(12f, 100f)
-        path.cubicTo(12f, 76f, 0f, 77.6142f, 0f, 50f)
-        path.cubicTo(0f, 22.3858f, 22.3858f, 0f, 50f, 0f)
-        path.cubicTo(77.6142f, 0f, 76f, 12f, 100f, 12f)
-        path.cubicTo(124f, 12f, 122.3858f, 0f, 150f, 0f)
-        path.cubicTo(177.6142f, 0f, 200f, 22.3858f, 200f, 50f)
-        path.cubicTo(200f, 77.6142f, 188f, 76f, 188f, 100f)
-        path.cubicTo(188f, 124f, 200f, 122.3858f, 200f, 150f)
-        path.cubicTo(200f, 177.6142f, 177.6142f, 200f, 150f, 200f)
-        path.cubicTo(122.3858f, 200f, 124f, 188f, 100f, 188f)
-        path.cubicTo(76f, 188f, 77.6142f, 200f, 50f, 200f)
-        path.cubicTo(22.3858f, 200f, 0f, 177.6142f, 0f, 150f)
-        path.cubicTo(0f, 122.3858f, 12f, 124f, 12f, 100f)
-        path.close()
-
-        val bounds = RectF()
-        val aPath = path.asAndroidPath()
-        aPath.computeBounds(bounds, true)
-        val scaleMatrix = Matrix()
-        scaleMatrix.setScale(
-            size.width / baseWidth,
-            size.height / baseHeight,
-            0f,
-            0f
+        val path = Path().apply {
+            moveTo(12f, 100f)
+            cubicTo(12f, 76f, 0f, 77.6142f, 0f, 50f)
+            cubicTo(0f, 22.3858f, 22.3858f, 0f, 50f, 0f)
+            cubicTo(77.6142f, 0f, 76f, 12f, 100f, 12f)
+            cubicTo(124f, 12f, 122.3858f, 0f, 150f, 0f)
+            cubicTo(177.6142f, 0f, 200f, 22.3858f, 200f, 50f)
+            cubicTo(200f, 77.6142f, 188f, 76f, 188f, 100f)
+            cubicTo(188f, 124f, 200f, 122.3858f, 200f, 150f)
+            cubicTo(200f, 177.6142f, 177.6142f, 200f, 150f, 200f)
+            cubicTo(122.3858f, 200f, 124f, 188f, 100f, 188f)
+            cubicTo(76f, 188f, 77.6142f, 200f, 50f, 200f)
+            cubicTo(22.3858f, 200f, 0f, 177.6142f, 0f, 150f)
+            cubicTo(0f, 122.3858f, 12f, 124f, 12f, 100f)
+            close()
+        }
+        
+        return Outline.Generic(
+            path
+                .asAndroidPath()
+                .apply {
+                    transform(Matrix().apply {
+                        setScale(size.width / baseWidth, size.height / baseHeight)
+                    })
+                }
+                .asComposePath()
         )
-        aPath.transform(scaleMatrix)
-
-        return Outline.Generic(path = aPath.asComposePath())
     }
 }
 ```
