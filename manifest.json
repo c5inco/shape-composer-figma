@@ -1,7 +1,7 @@
 {
   "name": "Shape Composer",
   "id": "1054248779295272882",
-  "api": "1.0.1",
+  "api": "1.0.0",
   "main": "dist/code.js",
   "ui": "dist/ui.html",
   "menu": [
