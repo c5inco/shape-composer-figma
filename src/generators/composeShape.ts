@@ -98,7 +98,7 @@ export function generateComposePath(
   const pathResponse = transformPathCommands(pathCommands) 
   const fillType = windingRule === 'EVENODD' ? 'fillType = PathFillType.EvenOdd\n' : ''
 
-  const value = `val path = Path().apply {\n${fillType}${pathResponse.value}}`
+  const value = `val path = Path().apply {\n${fillType}${pathResponse.value}}\n`
   
   return {
     value,
