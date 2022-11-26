@@ -1,6 +1,6 @@
 {
   "name": "shape-composer",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Your Figma plugin",
   "main": "code.js",
   "scripts": {
