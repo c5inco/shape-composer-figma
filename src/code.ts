@@ -1,5 +1,5 @@
 import { parseSVG } from 'svg-path-parser'
-import { generateComposePath, generateShapeClass } from './generators/composeShape'
+import { generateComposePath, generatePathData, generateShapeClass } from './generators/composeShape'
 import { removeNonAlphaNumeric } from './stringUtils'
 
 let selection = figma.currentPage.selection
@@ -11,46 +11,48 @@ if (selection.length > 0) {
     switch (node.type) {
         case 'VECTOR':
             let v = node as VectorNode
-            if (v.vectorPaths.length === 1) {
-                const vPath = v.vectorPaths[0]
-                const data = vPath.data
-                const cmds = parseSVG(data)
-                console.log(cmds)
+            let pathData = []
+            for (let i = 0; i < v.vectorPaths.length; i++) {
+                const vPath = v.vectorPaths[i]
+                const cmds = parseSVG(vPath.data)
+                const pdr = generatePathData(vPath.windingRule, cmds)
 
-                let response
-                if (figma.command === 'shape') {
-                    response = generateShapeClass(removeNonAlphaNumeric(v.name), v.width, v.height, vPath.windingRule, cmds)
-                }
-                if (figma.command === 'path') {
-                    response = generateComposePath(vPath.windingRule, cmds)
-                }
-
-                if (response.unsupported.length > 0) {
-                    const msg = `ERROR | Unsupported cmds found = ${response.unsupported.length}`
+                if (pdr.unsupported.length > 0) {
+                    const msg = `ERROR | Unsupported cmds found = ${pdr.unsupported.length}`
                     console.log(msg)
-                    console.log(response.unsupported)
+                    console.log(pdr.unsupported)
                     figma.notify(msg, {error: true})
                     figma.closePlugin()
                 } else {
-                    figma.showUI(__html__, {width: 0, height: 0})
-                    figma.ui.postMessage({
-                        copiedText: response.value,
-                        command: figma.command
-                    })
+                    pathData[i] = pdr.value
                 }
-            } else {
-                figma.closePlugin('Only single path export is supported at this time 🙈')
             }
+
+            let response
+            if (figma.command === 'shape') {
+                response = generateShapeClass(removeNonAlphaNumeric(v.name), v.width, v.height, pathData.join("\n"))
+            }
+            if (figma.command === 'path') {
+                response = generateComposePath(pathData.join("\n"))
+            }
+
+            console.log(response)
+            figma.showUI(__html__, {width: 0, height: 0})
+            figma.ui.postMessage({
+                copiedText: response,
+                command: figma.command
+            })
+            
             break;
         case 'BOOLEAN_OPERATION':
         case 'ELLIPSE':
         case 'POLYGON':
         case 'RECTANGLE':
         case 'STAR':
-            figma.closePlugin('Please flatten to single path 🙈')
+            figma.closePlugin('Please flatten to single Vector 🙈')
             break;
         default:
-            figma.closePlugin('Please select a vector or shape 🤠')
+            figma.closePlugin('Please select a Vector or Shape 🤠')
     }
 } else {
     figma.closePlugin('Please make a selection 🤠')

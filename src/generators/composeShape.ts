@@ -1,12 +1,12 @@
 import { BaseCommand } from 'svg-path-parser'
 import * as PathUtils from '../pathUtils'
 
-interface PathResponse {
+interface PathCommandResponse {
   value: string,
   unsupported: any[]
 }
 
-interface ShapeResponse {
+interface PathDataResponse {
   value: string,
   unsupported: any[]
 }
@@ -23,7 +23,7 @@ Number.prototype.round = function (): string {
 
 function transformPathCommands(
   cmds: BaseCommand[]
-): PathResponse {
+): PathCommandResponse {
   let value = ""
   let unsupported = []
 
@@ -56,13 +56,10 @@ export function generateShapeClass(
   name: string = 'Custom',
   width: number,
   height: number,
-  windingRule: string,
-  pathCommands: BaseCommand[],
-): ShapeResponse {
-  const pathResponse = generateComposePath(windingRule, pathCommands) 
-
-  const value =
-    `val ${name}Shape: Shape = object: Shape {
+  pathCommands: string,
+): string {
+  return `
+    val ${name}Shape: Shape = object: Shape {
       override fun createOutline(
         size: Size,
         layoutDirection: LayoutDirection,
@@ -71,7 +68,7 @@ export function generateShapeClass(
         val baseWidth = ${width.round()}f
         val baseHeight = ${height.round()}f
 
-        ${pathResponse.value}
+        ${generateComposePath(pathCommands)}\n
         return Outline.Generic(
           path
             .asAndroidPath()
@@ -84,21 +81,22 @@ export function generateShapeClass(
         )
       }
     }`
-  
-  return {
-    value,
-    unsupported: pathResponse.unsupported
-  }
 }
 
 export function generateComposePath(
+  pathCommands,
+): String {
+  return `val path = Path().apply {\n${pathCommands}}`
+}
+
+export function generatePathData(
   windingRule: string,
   pathCommands: BaseCommand[],
-): PathResponse {
+): PathDataResponse {
   const pathResponse = transformPathCommands(pathCommands) 
   const fillType = windingRule === 'EVENODD' ? 'fillType = PathFillType.EvenOdd\n' : ''
 
-  const value = `val path = Path().apply {\n${fillType}${pathResponse.value}}\n`
+  const value = `${fillType}${pathResponse.value}`
   
   return {
     value,
