@@ -3,12 +3,9 @@
   "id": "1054248779295272882",
   "api": "1.0.0",
   "main": "dist/code.js",
-  "ui": "dist/ui.html",
-  "menu": [
-    {"name": "Export as Shape class", "command": "shape"},
-    {"name": "Export as Compose Path", "command": "path"}
-  ],
-  "editorType": [
-    "figma"
+  "editorType": ["dev"],
+  "capabilities": ["codegen"],
+  "codegenLanguages": [
+    {"label": "Compose", "value": "compose"}
   ]
 }
