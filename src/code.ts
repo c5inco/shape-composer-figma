@@ -6,10 +6,6 @@ import { removeNonAlphaNumeric } from './stringUtils'
 if (figma.editorType === "dev" && figma.mode === "codegen") {
   // Register a callback to the "generate" event
   figma.codegen.on("generate", ({ node }) => {
-    let selection = figma.currentPage.selection
-
-    if (selection.length > 0) {
-      let node = selection[0]
       console.log(node.type)
 
       switch (node.type) {
@@ -59,20 +55,19 @@ if (figma.editorType === "dev" && figma.mode === "codegen") {
           case 'STAR':
               return [
                   {
-                    title: "Shape Composer",
+                    title: "⚠️ Shape Composer issue",
                     language: "PLAINTEXT",
-                    code: "⚠️ Flatten to single Vector"
+                    code: "Flatten to single Vector"
                   }
                 ]
           default:
               return [
                   {
-                    title: "Shape Composer",
+                    title: "⚠️ Shape Composer issue",
                     language: "PLAINTEXT",
-                    code: "⚠️ Select a Vector or Shape"
+                    code: "Select a Vector or Shape"
                   }
                 ]
       }
-    }
   })
 }
