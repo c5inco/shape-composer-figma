@@ -42,12 +42,12 @@ if (figma.editorType === "dev" && figma.mode === "codegen") {
 
               return [
                   {
-                      title: "Shape Class (Kotlin)",
+                      title: "Shape Class",
                       language: "KOTLIN",
                       code: shapeClassCode
                   },
                   {
-                      title: "Compose Path (Kotlin)",
+                      title: "Compose Path",
                       language: "KOTLIN",
                       code: composePathCode
                   },

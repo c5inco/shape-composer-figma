@@ -6,6 +6,6 @@
   "editorType": ["dev"],
   "capabilities": ["codegen"],
   "codegenLanguages": [
-    {"label": "Compose", "value": "compose"}
+    {"label": "Kotlin", "value": "kotlin"}
   ]
 }
