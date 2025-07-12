@@ -71,3 +71,9 @@ if (figma.editorType === "dev" && figma.mode === "codegen") {
       }
   })
 }
+
+if (figma.editorType === "figma") {
+    if (figma.command === 'shape' || figma.command === 'path') {
+        figma.closePlugin('Shape Composer exporting is only available through DevMode now! 🙏')
+    }
+}

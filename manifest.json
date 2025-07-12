@@ -3,7 +3,11 @@
   "id": "1054248779295272882",
   "api": "1.0.0",
   "main": "dist/code.js",
-  "editorType": ["dev"],
+  "editorType": ["figma", "dev"],
+  "menu": [
+    {"name": "Export as Shape class", "command": "shape"},
+    {"name": "Export as Compose Path", "command": "path"}
+  ],
   "capabilities": ["codegen"],
   "codegenLanguages": [
     {"label": "Kotlin", "value": "kotlin"}
