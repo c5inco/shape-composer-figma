@@ -11,5 +11,9 @@
   "capabilities": ["codegen"],
   "codegenLanguages": [
     {"label": "Kotlin", "value": "kotlin"}
-  ]
+  ],
+  "documentAccess": "dynamic-page",
+  "networkAccess": {
+    "allowedDomains": ["none"]
+  }
 }
