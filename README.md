@@ -72,5 +72,5 @@ Unsupported path commands:
 ## Current designed workflow
 
 1. Select Vector layer in Figma (flatten if necessary)
-2. Execute plugin action
-3. Paste copied class from clipboard into Compose project
+2. Switch to DevMode
+3. Select the Shape Composer plugin from the Code tab in the Inspect Panel to see the generated code
