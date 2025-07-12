@@ -2,7 +2,9 @@
 
 # Shape Composer Figma plugin
 
-Small plugin that exports custom shapes for use in a [Jetpack Compose](https://developer.android.com/jetpack/compose) app.
+[Codegen DevMode plugin](https://www.figma.com/plugin-docs/codegen-plugins/) that exports vectors as custom Shape classes to use in a [Jetpack Compose](https://developer.android.com/jetpack/compose) app.
+
+![Screenshot](./assets/community/screenshot.png)
 
 Essentially, the path data from a Figma [VectorNode](https://www.figma.com/plugin-docs/api/VectorNode/) is translated into [Path commands](https://developer.android.com/reference/kotlin/androidx/compose/ui/graphics/Path) to be recreated in Android, with some extra wrapping around a [Shape class](https://developer.android.com/reference/kotlin/androidx/compose/ui/graphics/Shape) to easily copy-paste into the project.
 
